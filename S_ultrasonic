@@ -1,0 +1,59 @@
+#define TRIG_PIN 8  // Pin Trigger sensor
+#define ECHO_PIN 9  // Pin Echo sensor
+#define LED1_PIN 10  // Pin LED1 (Dekat)
+#define LED2_PIN 11  // Pin LED2 (Sedang)
+#define LED3_PIN 12  // Pin LED3 (Jauh)
+
+long duration;
+int distance;
+
+void setup() {
+  // Set pin mode
+  pinMode(TRIG_PIN, OUTPUT);   // Set Trigger sebagai output
+  pinMode(ECHO_PIN, INPUT);    // Set Echo sebagai input
+  pinMode(LED1_PIN, OUTPUT);   // Set LED1 sebagai output
+  pinMode(LED2_PIN, OUTPUT);   // Set LED2 sebagai output
+  pinMode(LED3_PIN, OUTPUT);   // Set LED3 sebagai output
+
+  // Mulai komunikasi serial
+  Serial.begin(9600);
+}
+
+void loop() {
+  // Membersihkan Trigger pin
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+
+  // Mengirim trigger pulse
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+
+  // Membaca durasi echo pulse
+  duration = pulseIn(ECHO_PIN, HIGH);
+
+  // Menghitung jarak berdasarkan waktu (speed of sound ~ 34300 cm/s)
+  distance = duration * 0.034 / 2;
+
+  // Menampilkan jarak ke Serial Monitor
+  Serial.print("Jarak: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+
+  // Logika untuk menghidupkan LED berdasarkan jarak
+  if (distance < 10) {
+    digitalWrite(LED1_PIN, HIGH);  // LED1 menyala jika jarak kurang dari 10 cm
+    digitalWrite(LED2_PIN, LOW);   // Matikan LED2
+    digitalWrite(LED3_PIN, LOW);   // Matikan LED3
+  } else if (distance >= 10 && distance < 20) {
+    digitalWrite(LED1_PIN, LOW);   // Matikan LED1
+    digitalWrite(LED2_PIN, HIGH);  // LED2 menyala jika jarak antara 10 cm dan 20 cm
+    digitalWrite(LED3_PIN, LOW);   // Matikan LED3
+  } else {
+    digitalWrite(LED1_PIN, LOW);   // Matikan LED1
+    digitalWrite(LED2_PIN, LOW);   // Matikan LED2
+    digitalWrite(LED3_PIN, HIGH);  // LED3 menyala jika jarak lebih dari 20 cm
+  }
+
+  delay(500);  // Delay untuk membaca jarak secara periodik
+}
